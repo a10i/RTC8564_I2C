@@ -20,24 +20,23 @@ RTC8564::RTC8564()
 void RTC8564::init(void)
 {
   delay(1000);
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //write reg addr 00
-  I2c.write(RTC8564_SLAVE_ADRS,0x20); //00 Control 1,S TOP=1
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //01 Control 2
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //02 Seounds
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //03 Minutes
-  I2c.write(RTC8564_SLAVE_ADRS,0x09); //04 Hours
-  I2c.write(RTC8564_SLAVE_ADRS,0x01); //05 Days
-  I2c.write(RTC8564_SLAVE_ADRS,0x01); //06 Weekdays
-  I2c.write(RTC8564_SLAVE_ADRS,0x01); //07 Months
-  I2c.write(RTC8564_SLAVE_ADRS,0x01); //08 Years
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //09 Minutes Alarm
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //0A Hours Alarm
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //0B Days Alarm
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //0C Weekdays Alarm
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //0D CLKOUT
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //0E Timer control
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //0F Timer
-  I2c.write(RTC8564_SLAVE_ADRS,0x00); //00 Control 1, STOP=0
+  I2c.write(RTC8564_SLAVE_ADRS,0x00,0x20); //00 Control 1,S TOP=1
+  I2c.write(RTC8564_SLAVE_ADRS,0x01,0x00); //01 Control 2
+  I2c.write(RTC8564_SLAVE_ADRS,0x02,0x00); //02 Seounds
+  I2c.write(RTC8564_SLAVE_ADRS,0x03,0x00); //03 Minutes
+  I2c.write(RTC8564_SLAVE_ADRS,0x04,0x09); //04 Hours
+  I2c.write(RTC8564_SLAVE_ADRS,0x05,0x01); //05 Days
+  I2c.write(RTC8564_SLAVE_ADRS,0x06,0x02); //06 Weekdays
+  I2c.write(RTC8564_SLAVE_ADRS,0x07,0x04); //07 Months
+  I2c.write(RTC8564_SLAVE_ADRS,0x08,0x14); //08 Years
+  I2c.write(RTC8564_SLAVE_ADRS,0x09,0x00); //09 Minutes Alarm
+  I2c.write(RTC8564_SLAVE_ADRS,0x0A,0x00); //0A Hours Alarm
+  I2c.write(RTC8564_SLAVE_ADRS,0x0B,0x00); //0B Days Alarm
+  I2c.write(RTC8564_SLAVE_ADRS,0x0C,0x00); //0C Weekdays Alarm
+  I2c.write(RTC8564_SLAVE_ADRS,0x0D,0x00); //0D CLKOUT
+  I2c.write(RTC8564_SLAVE_ADRS,0x0E,0x00); //0E Timer control
+  I2c.write(RTC8564_SLAVE_ADRS,0x0F,0x00); //0F Timer
+  I2c.write(RTC8564_SLAVE_ADRS,0x00,0x00); //00 Control 1, STOP=0
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -46,9 +45,8 @@ void RTC8564::begin(void)
 {
   I2c.begin();
   if(isvalid() == false) {
-    
     init();
-    
+
     if (isInitDatetime()) {
       byte date_time[7];
       date_time[0] = _seconds;
@@ -65,9 +63,9 @@ void RTC8564::begin(void)
 
 void RTC8564::beginWithoutIsValid(void)
 {
-  I2c.begin();  
+  I2c.begin();
   init();
-  
+
   if (isInitDatetime()) {
     byte date_time[7];
     date_time[0] = _seconds;
@@ -118,7 +116,7 @@ void RTC8564::syncInterrupt(unsigned int mode, unsigned long term)
   I2c.write(RTC8564_SLAVE_ADRS,0x01,0x11);
   byte buf[2];
 
-  buf[0] = 0x80 | mode;
+  buf[0] = 0x82 | mode;
   buf[1] = term;
 
   I2c.write(RTC8564_SLAVE_ADRS,0x0E,buf,2);
@@ -150,7 +148,7 @@ bool RTC8564::isvalid(void)
   I2c.read(RTC8564_SLAVE_ADRS,0x02,1);
   if(I2c.available()){
     uint8_t buff = I2c.receive();
-    return (buff & 0x00 ? false : true);
+    return (buff & 0x80 ? false : true);
   }
   return false;
 }
